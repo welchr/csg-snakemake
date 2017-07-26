@@ -1,0 +1,8 @@
+rule example:
+  input: 
+    "fileA.txt"
+  output:
+    "processed_fileA.txt"
+  shell:
+    "script.py {input} {output}"
+

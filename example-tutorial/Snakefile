@@ -1,0 +1,45 @@
+ROWS = 25
+
+# This is the default rule to be executed by Snakemake since it is the first rule in the file. 
+# The remaining rules are defined in a more logical ordering. 
+rule final:
+  input:
+    expand("covar_chrom{chrom}.tab",chrom=range(1,5))
+
+# -------------------------------------------------------------------------
+
+# Create some fake gene expression data as an example. 
+rule create_data:
+  output:
+    "gene_data.tab"
+  shell:
+    "python3 make_data.py {ROWS}"
+
+# Perform a very crude normalization of expression values. 
+rule normalize:
+  input:
+    "gene_data.tab"
+  output:
+    "gene_data_normalized.tab"
+  shell:
+    "python3 normalize.py {input} {output}"
+
+# Let's pretend we need to split the data by chromosome 
+# because the jobs are quite time consuming. 
+rule split:
+  input:
+    rules.normalize.output
+  output:
+    "gene_data_normalized_chr{chrom}.tab"
+  shell:
+    "python3 extract_chrom.py --infile {input} --chrom {wildcards.chrom} --outfile {output}"
+
+# Calculate a covariance matrix for genes on each chromosome (contrived example)
+rule cov:
+  input:
+    rules.split.output
+  output:
+    "covar_chrom{chrom}.tab"
+  shell:
+    "python3 cov.py {input} {output}"
+

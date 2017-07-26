@@ -1,0 +1,16 @@
+with open("traits") as fp:
+  traits = fp.read().split()
+
+with open("tests") as fp:
+  tests = fp.read().split()
+
+rule final:
+  input:
+    expand("results.{trait}.{test}.tab",trait=traits,test=tests)
+
+rule analysis:
+  output:
+    "results.{trait}.{test}.tab"
+  shell:
+    "echo 1 > {output}"
+  
